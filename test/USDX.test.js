@@ -4,7 +4,7 @@ const USDX = artifacts.require('USDX')
 
 contract('USDX', accounts => {
 	beforeEach(async () => {
-		this.token = await USDX.new(1000000000000)
+		this.token = await USDX.new()
 	})
 
 	it('should have the name Dextr. USD', async () => {

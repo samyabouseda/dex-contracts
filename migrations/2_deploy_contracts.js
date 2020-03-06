@@ -1,8 +1,13 @@
-const ConvertLib = artifacts.require("ConvertLib");
-const MetaCoin = artifacts.require("MetaCoin");
+// const USDXCrowdsaleDeployer = artifacts.require(
+// 	'USDXCrowdsaleDeployer',
+// )
+const USDXCrowdsale = artifacts.require('USDXCrowdsale')
+const USDX = artifacts.require('USDX')
 
 module.exports = function(deployer) {
-  deployer.deploy(ConvertLib);
-  deployer.link(ConvertLib, MetaCoin);
-  deployer.deploy(MetaCoin);
-};
+	deployer.deploy(USDX)
+	deployer.link(USDX, USDXCrowdsale)
+	// deployer.deploy(USDXCrowdsale)
+	//deployer.link(USDXCrowdsale, USDXCrowdsaleDeployer)
+	//deployer.deploy(USDXCrowdsaleDeployer)
+}
