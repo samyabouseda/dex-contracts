@@ -17,8 +17,8 @@ contract('USDX', accounts => {
 		expect(name).to.equal('USDX')
 	})
 
-	it('should have 2 decimals', async () => {
+	it('should have 18 decimals', async () => {
 		const decimals = await this.token.decimals()
-		expect(decimals.toString()).to.equal('2')
+		expect(decimals.toString()).to.equal('18')
 	})
 })
