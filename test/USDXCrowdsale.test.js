@@ -27,14 +27,12 @@ contract('USDXCrowdsale', accounts => {
 	})
 
 	it('should allow user to purchase USDX token', async () => {
-		const token = await this.token
-
 		// Setup 1 accounts.
 		const accountOne = accounts[1]
 
 		// Get initial balance of first account.
 		const accountOneStartingBalance = (
-			await token.balanceOf.call(accountOne)
+			await this.token.balanceOf.call(accountOne)
 		).toNumber()
 
 		// Purchase USDX from first account
@@ -45,7 +43,7 @@ contract('USDXCrowdsale', accounts => {
 
 		// Get balance after first transaction.
 		const accountOneEndingBalance = (
-			await token.balanceOf.call(accountOne)
+			await this.token.balanceOf.call(accountOne)
 		).toNumber()
 
 		expect(accountOneStartingBalance).to.equal(0)
