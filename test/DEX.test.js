@@ -7,7 +7,7 @@ const DEX = artifacts.require('DEX')
 contract('DEX', accounts => {
 	beforeEach(async () => {
 		// USDX config
-		this.token = await USDX.new()
+		this.token = await USDX.new({ from: accounts[9] })
 
 		// Crowdsale config
 		this.rate = 231
@@ -20,7 +20,9 @@ contract('DEX', accounts => {
 		)
 
 		// Transfer token ownership to crowdsale
-		await this.token.addMinter(this.crowdsale.address)
+		await this.token.addMinter(this.crowdsale.address, {
+			from: accounts[9],
+		})
 
 		// DEX config
 		this.dex = await DEX.new()
@@ -51,6 +53,10 @@ contract('DEX', accounts => {
 		).toNumber()
 
 		// Deposit USDX on DEX smart contract.
+		await this.dex.deposit(this.token.address, 100, {
+			from: accountOne,
+		})
+		console.log(accountOne)
 
 		// Get balance after first transaction.
 		const accountOneEndingBalance = (
