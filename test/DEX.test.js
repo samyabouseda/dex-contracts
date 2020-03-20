@@ -66,10 +66,46 @@ contract('DEX', accounts => {
 		).toNumber()
 
 		expect(accountOneStartingBalance).to.equal(2310)
-		expect(accountOneEndingBalance).to.equal(2310)
 		expect(accountOneStartingBalanceOnDex).to.equal(0)
+		expect(accountOneEndingBalance).to.equal(2210)
 		expect(accountOneEndingBalanceOnDex).to.equal(100)
+	})
 
-		// check that balancOf specific token is equal to the amount sent.
+	it('should allow user to deposit same tokens multiple times', async () => {
+		const accountOne = accounts[1]
+
+		// Get initial balance of first account.
+		const accountOneStartingBalance = (
+			await this.token.balanceOf(accountOne)
+		).toNumber()
+		const accountOneStartingBalanceOnDex = (
+			await this.dex.balanceOf(accountOne)
+		).toNumber()
+
+		// Deposit USDX on DEX smart contract.
+		await this.dex.deposit(this.token.address, 100, 1, {
+			from: accountOne,
+		})
+		await this.dex.deposit(this.token.address, 27, 1, {
+			from: accountOne,
+		})
+
+		// Get balance after last transaction.
+		const accountOneEndingBalance = (
+			await this.token.balanceOf(accountOne)
+		).toNumber()
+		const accountOneEndingBalanceOnDex = (
+			await this.dex.balanceOf(accountOne)
+		).toNumber()
+
+		expect(accountOneStartingBalance).to.equal(2310)
+		expect(accountOneStartingBalanceOnDex).to.equal(0)
+		expect(accountOneEndingBalance).to.equal(2183)
+		expect(accountOneEndingBalanceOnDex).to.equal(127)
+	})
+
+	it('should allow user to deposit stock tokens', async () => {
+		// check that balanceOf specific token is equal to the amount sent.
+		expect(true).to.equal(false)
 	})
 })
