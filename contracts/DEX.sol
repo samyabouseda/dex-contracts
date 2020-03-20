@@ -31,32 +31,35 @@ contract DEX {
         return account._totalOwnedInUSDX;
     }
 
-    event E (uint indexed a);
-    function deposit(address tokenAddress, uint amount) public {
+    function deposit(address tokenAddress, uint amount, uint rate) public {
         require(amount > 0, "DEX: amount deposited is 0");
 
         // check if user has enough token
         uint balance = ERC20Detailed(tokenAddress).balanceOf(msg.sender);
-        require(balance >= amount, "DEX: Sender doesn't have enough fund to deposit.");
+        require(balance >= amount, "DEX: Sender doesn't have enough fund to make this deposit.");
 
         // calc and update new total in usdx
-        Account memory account = accounts[msg.sender];
-        if (account._address == address(msg.sender)) {
+        Account storage account = accounts[msg.sender];
+        if (account._address == address(msg.sender)) { // if account is registered
             // get rate of tokenAddress
             // calc new usdx total
             // update token amount in balances
             // transfer token from sender account to dex account
             // emit deposit event
-        } else {
-            Account memory newAccount = Account(msg.sender, 0);
 
-            // get rate of token
+        } else { // account is not registered
+            account._address = msg.sender;
+            Balance memory newBalance = Balance(tokenAddress, amount);
+            account._balances[tokenAddress] = newBalance;
+
             // calc amount * rate to get usdx amount
-            // add new balance for the tokenAddress
+            // the rate is received as an input to simplify the process.
+            // However, it should be fetched directly on the crowdsale of a specific token.
+            uint256 amountInUSDX = amount * rate;
 
-            newAccount._totalOwnedInUSDX += amount;
+            // update the total in usdx
+            account._totalOwnedInUSDX += amountInUSDX;
         }
-        emit E(balance);
 
         // emit deposit event
         emit Deposit("Dextr. USD");

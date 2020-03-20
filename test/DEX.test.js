@@ -53,10 +53,9 @@ contract('DEX', accounts => {
 		).toNumber()
 
 		// Deposit USDX on DEX smart contract.
-		await this.dex.deposit(this.token.address, 100, {
+		await this.dex.deposit(this.token.address, 100, 1, {
 			from: accountOne,
 		})
-		console.log(accountOne)
 
 		// Get balance after first transaction.
 		const accountOneEndingBalance = (
@@ -70,5 +69,7 @@ contract('DEX', accounts => {
 		expect(accountOneEndingBalance).to.equal(2310)
 		expect(accountOneStartingBalanceOnDex).to.equal(0)
 		expect(accountOneEndingBalanceOnDex).to.equal(100)
+
+		// check that balancOf specific token is equal to the amount sent.
 	})
 })
