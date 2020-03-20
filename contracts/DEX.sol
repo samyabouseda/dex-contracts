@@ -6,7 +6,7 @@ import "./Approvable.sol";
 
 contract DEX {
 
-    event Deposit(bytes32 indexed hello);
+    event Deposit(address indexed depositor, address holder, address token, uint256 amount, uint rate);
 
     struct Balance {
         address tokenAddress;
@@ -51,7 +51,7 @@ contract DEX {
             account._balances[token] = newBalance;
         }
 
-        // calc amount * rate to get usdx amount
+        // calculate the amount owned in usdx for a token
         // the rate is received as an input to simplify the process.
         // However, it should be fetched directly on the crowdsale of a specific token.
         uint256 amountInUSDX = amount * rate;
@@ -63,6 +63,6 @@ contract DEX {
         IERC20(token).transferFrom(msg.sender, address(this), amount);
 
         // emit deposit event
-        emit Deposit("Dextr. USD");
+        emit Deposit(msg.sender, address(this), token, amount, rate);
     }
 }
