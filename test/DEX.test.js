@@ -1,68 +1,48 @@
 const { expect } = require('chai')
-
-const USDX = artifacts.require('USDX')
-const USDXCrowdsale = artifacts.require('USDXCrowdsale')
-const DEX = artifacts.require('DEX')
+const _beforeEach = require('./before-each')
 
 contract('DEX', accounts => {
 	beforeEach(async () => {
-		// USDX config
-		this.token = await USDX.new({ from: accounts[9] })
-
-		// Crowdsale config
-		this.rate = 231
-		this.wallet = accounts[0]
-
-		this.crowdsale = await USDXCrowdsale.new(
-			this.rate,
-			this.wallet,
-			this.token.address,
-		)
-
-		// Transfer token ownership to crowdsale
-		await this.token.addMinter(this.crowdsale.address, {
-			from: accounts[9],
-		})
-
-		// DEX config
-		this.dex = await DEX.new()
+		this.contracts = await _beforeEach(accounts)
 
 		// Purchase USDX from first account
-		await this.crowdsale.sendTransaction({
+		await this.contracts.fiatCrowdsale.sendTransaction({
 			value: 10,
 			from: accounts[1],
 		})
 	})
 
 	it('account 1 should have 231 usdx', async () => {
+		const { fiat } = this.contracts
 		const accountOneBalance = (
-			await this.token.balanceOf(accounts[1])
+			await fiat.balanceOf(accounts[1])
 		).toNumber()
 		expect(accountOneBalance).to.equal(2310)
 	})
 
 	it('should allow user to deposit USDX tokens', async () => {
+		const { fiat, dex } = this.contracts
 		const accountOne = accounts[1]
 
 		// Get initial balance of first account.
 		const accountOneStartingBalance = (
-			await this.token.balanceOf(accountOne)
+			await fiat.balanceOf(accountOne)
 		).toNumber()
 		const accountOneStartingBalanceOnDex = (
-			await this.dex.balanceOf(accountOne)
+			await dex.balanceOf(accountOne)
 		).toNumber()
 
 		// Deposit USDX on DEX smart contract.
-		await this.dex.deposit(this.token.address, 100, 1, {
+		await dex.deposit(fiat.address, 100, 1, {
 			from: accountOne,
 		})
 
 		// Get balance after first transaction.
 		const accountOneEndingBalance = (
-			await this.token.balanceOf(accountOne)
+			await fiat.balanceOf(accountOne)
 		).toNumber()
 		const accountOneEndingBalanceOnDex = (
-			await this.dex.balanceOf(accountOne)
+			await dex.balanceOf(accountOne)
 		).toNumber()
 
 		expect(accountOneStartingBalance).to.equal(2310)
@@ -72,30 +52,31 @@ contract('DEX', accounts => {
 	})
 
 	it('should allow user to deposit same tokens multiple times', async () => {
+		const { fiat, dex } = this.contracts
 		const accountOne = accounts[1]
 
 		// Get initial balance of first account.
 		const accountOneStartingBalance = (
-			await this.token.balanceOf(accountOne)
+			await fiat.balanceOf(accountOne)
 		).toNumber()
 		const accountOneStartingBalanceOnDex = (
-			await this.dex.balanceOf(accountOne)
+			await dex.balanceOf(accountOne)
 		).toNumber()
 
 		// Deposit USDX on DEX smart contract.
-		await this.dex.deposit(this.token.address, 100, 1, {
+		await dex.deposit(fiat.address, 100, 1, {
 			from: accountOne,
 		})
-		await this.dex.deposit(this.token.address, 27, 1, {
+		await dex.deposit(fiat.address, 27, 1, {
 			from: accountOne,
 		})
 
 		// Get balance after last transaction.
 		const accountOneEndingBalance = (
-			await this.token.balanceOf(accountOne)
+			await fiat.balanceOf(accountOne)
 		).toNumber()
 		const accountOneEndingBalanceOnDex = (
-			await this.dex.balanceOf(accountOne)
+			await dex.balanceOf(accountOne)
 		).toNumber()
 
 		expect(accountOneStartingBalance).to.equal(2310)
@@ -106,6 +87,7 @@ contract('DEX', accounts => {
 
 	it('should allow user to deposit stock tokens', async () => {
 		// check that balanceOf specific token is equal to the amount sent.
-		expect(true).to.equal(false)
+		const { fiat, dex } = this.contracts
+		expect(false).to.equal(true)
 	})
 })
