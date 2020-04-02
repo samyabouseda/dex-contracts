@@ -5,6 +5,13 @@ const { expect } = require('chai')
 contract('StockICO', accounts => {
 	beforeEach(async () => {
 		this.contracts = await _beforeEach(accounts)
+		this.account = accounts[1]
+
+		// Purchase USDX from first account
+		await this.contracts.fiatCrowdsale.sendTransaction({
+			value: '100',
+			from: this.account,
+		})
 	})
 
 	it('should have the AAPL token', async () => {
@@ -14,28 +21,27 @@ contract('StockICO', accounts => {
 	})
 
 	it('should allow user to purchase AAPL token with USDX', async () => {
-		const { fiat, stock } = this.contracts
-		const accountOne = accounts[1]
+		const { fiat, stock, stockIco } = this.contracts
 
 		const fiatStartingBalance = (
-			await fiat.balanceOf.call(accountOne)
+			await fiat.balanceOf.call(this.account)
 		).toNumber()
 		const stockStartingBalance = (
-			await stock.balanceOf.call(accountOne)
+			await stock.balanceOf.call(this.account)
 		).toNumber()
 
-		// ...
+		await stockIco.buy(10, 248, { from: this.account })
 
 		const fiatEndingBalance = (
-			await fiat.balanceOf.call(accountOne)
+			await fiat.balanceOf.call(this.account)
 		).toNumber()
 		const stockEndingBalance = (
-			await stock.balanceOf.call(accountOne)
+			await stock.balanceOf.call(this.account)
 		).toNumber()
 
-		expect(fiatStartingBalance).to.equal(20000)
+		expect(fiatStartingBalance).to.equal(23100)
 		expect(stockStartingBalance).to.equal(0)
-		expect(fiatEndingBalance).to.equal(17520) // 20'000 - (10 shares at 248 each)
+		expect(fiatEndingBalance).to.equal(20620) // 23'100 - (10 shares at 248 each)
 		expect(stockEndingBalance).to.equal(10)
 	})
 })

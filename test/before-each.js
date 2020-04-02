@@ -8,63 +8,6 @@ const Stock = artifacts.require('Stock')
 const StockICO = artifacts.require('StockICO')
 const DEX = artifacts.require('DEX')
 
-const be = async accounts => {
-	// Accounts
-	this.fiatHolder = accounts[5]
-	this.stockHolder = accounts[6]
-	this.crowdsaleWallet = accounts[7]
-	// this.icoWallet = accounts[8]
-
-	// Fiat config
-	this.fiat = await USDX.new({ from: this.fiatHolder })
-
-	// // Fiat crowdsale config
-	// this.fiatRate = 231
-	// this.fiatCrowdsale = await USDXCrowdsale.new(
-	// 	this.fiatRate,
-	// 	this.crowdsaleWallet,
-	// 	this.fiat.address,
-	// 	// { from: ... }
-	// )
-	//
-	// // Transfer token ownership to crowdsale
-	// await this.fiat.addMinter(this.fiatCrowdsale.address, {
-	// 	from: this.fiatHolder,
-	// })
-	//
-	// // Stock config
-	// this.stock = await Stock.new(
-	// 	'Apple Inc.',
-	// 	'AAPL',
-	// 	18,
-	// 	1000000000,
-	// 	{ from: this.stockHolder },
-	// )
-	//
-	// // ICO config
-	// this.pricePerShare = 248
-	// this.ico = await StockICO.new(
-	// 	this.stock.address,
-	// 	this.fiat.address,
-	// 	this.pricePerShare,
-	// 	// { from: ... }
-	// )
-	//
-	// // Transfer stock ownership to ICO
-	// await this.stock.addMinter(this.ico.address, {
-	// 	from: this.stockHolder,
-	// })
-	//
-	// // DEX config
-	// this.dex = await DEX.new()
-
-	// Purchase USDX from first account
-	// await this.fiatCrowdsale.sendTransaction({
-	// 	value: 10,
-	// 	from: accounts[1],
-	// })
-}
-
 const _beforeEach = async accounts => {
 	// Fiat config //
 	this.fiat = await USDX.new()
@@ -94,6 +37,10 @@ const _beforeEach = async accounts => {
 	)
 
 	// Transfer token ownership to stock ico
+	this.stock.transfer(
+		this.stockIco.address,
+		await this.stock.totalSupply(),
+	)
 
 	// DEX config //
 	this.dex = await DEX.new()
