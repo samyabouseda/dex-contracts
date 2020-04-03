@@ -4,6 +4,7 @@ const _beforeEach = require('./before-each')
 contract('DEX', accounts => {
 	beforeEach(async () => {
 		this.contracts = await _beforeEach(accounts)
+		this.account = accounts[1]
 
 		// Purchase USDX from first account
 		await this.contracts.fiatCrowdsale.sendTransaction({
@@ -51,7 +52,7 @@ contract('DEX', accounts => {
 		expect(accountOneEndingBalanceOnDex).to.equal(100)
 	})
 
-	it('should allow user to deposit same tokens multiple times', async () => {
+	it('should allow user to deposit USDX tokens multiple times', async () => {
 		const { fiat, dex } = this.contracts
 		const accountOne = accounts[1]
 
@@ -86,6 +87,44 @@ contract('DEX', accounts => {
 	})
 
 	it('should allow user to deposit stock tokens', async () => {
+		// check that balanceOf specific token is equal to the amount sent.
+		const { stock, stockIco, fiat, dex } = this.contracts
+
+		// Stock purchase
+		const numberOfShares = 1
+		const rate = 248
+		await stockIco.buy(numberOfShares, rate, {
+			from: this.account,
+		})
+
+		// Get initial balance of first account.
+		const accountOneStartingBalance = (
+			await stock.balanceOf(this.account)
+		).toNumber()
+		const accountOneStartingBalanceOnDex = (
+			await dex.balanceOf(this.account)
+		).toNumber()
+
+		// Deposit Stock on DEX smart contract.
+		await dex.deposit(stock.address, numberOfShares, rate, {
+			from: this.account,
+		})
+
+		// Get balance after last transaction.
+		const accountOneEndingBalance = (
+			await stock.balanceOf(this.account)
+		).toNumber()
+		const accountOneEndingBalanceOnDex = (
+			await dex.balanceOf(this.account)
+		).toNumber()
+
+		expect(accountOneStartingBalance).to.equal(1)
+		expect(accountOneStartingBalanceOnDex).to.equal(0)
+		expect(accountOneEndingBalance).to.equal(0)
+		expect(accountOneEndingBalanceOnDex).to.equal(248)
+	})
+
+	it('should allow user to deposit stock tokens multiple times', async () => {
 		// check that balanceOf specific token is equal to the amount sent.
 		const { fiat, dex } = this.contracts
 		expect(false).to.equal(true)
