@@ -124,9 +124,14 @@ contract('DEX', accounts => {
 		expect(accountOneEndingBalanceOnDex).to.equal(248)
 	})
 
-	it('should allow user to deposit stock tokens multiple times', async () => {
-		// check that balanceOf specific token is equal to the amount sent.
-		const { fiat, dex } = this.contracts
+	// it('should allow user to deposit stock tokens multiple times', async () => {
+	// 	// check that balanceOf specific token is equal to the amount sent.
+	// 	const { fiat, dex } = this.contracts
+	// 	expect(false).to.equal(true)
+	// })
+	// TODO: Test that deposit work with web3.js
+	// NOTE: Problem is probably coming from bad signature
+	it('should deposit when using web3.js ', async () => {
 		expect(false).to.equal(true)
 	})
 })
