@@ -114,7 +114,7 @@ contract DEX {
     ) public {
         Trade memory trade = Trade(tokenMaker, tokenTaker, amountMaker, amountTaker, addressMaker, addressTaker, nonce);
         require(msg.sender == _matchingEngine, "DEX: Sender should be matching engine");
-//        require(isValidSignature(trade, signature), "Trade: signature is invalid.");
+        require(isValidSignature(trade, signature), "DEX: Trade signature is invalid.");
 
         // Token exchange
         Account storage makerAccount = accounts[addressMaker];
@@ -125,7 +125,6 @@ contract DEX {
         Balance storage makerAccountBalanceOfTokenTaker = makerAccount._balances[tokenTaker]; // 1000  +amountTaker
         Balance storage takerAccountBalanceOfTokenMaker = takerAccount._balances[tokenMaker]; //  0 +amountTaker
         Balance storage takerAccountBalanceOfTokenTaker = takerAccount._balances[tokenTaker]; //  1000 -amountMaker
-
 
         makerAccountBalanceOfTokenMaker.tokenAmount -= amountMaker;
         makerAccountBalanceOfTokenTaker.tokenAmount += amountTaker;
@@ -141,5 +140,57 @@ contract DEX {
             trade.addressTaker,
             trade.nonce
         );
+    }
+
+    event H (address signer, address matchingEngine);
+
+    function isValidSignature(Trade memory trade, bytes memory signature)
+        internal
+        view
+        returns (bool)
+    {
+        bytes32 tradeHash = prefixed(keccak256(abi.encodePacked(
+                trade.tokenMaker,
+                trade.tokenTaker,
+                trade.amountMaker,
+                trade.amountTaker,
+                trade.addressMaker,
+                trade.addressTaker,
+                trade.nonce
+            )));
+
+        // check that the signature is from the matching engine
+        return recoverSigner(tradeHash, signature) == _matchingEngine;
+    }
+
+    function prefixed(bytes32 hash) internal pure returns (bytes32) {
+        // builds a prefixed hash to mimic the behavior of eth_sign.
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+    }
+
+    function recoverSigner(bytes32 message, bytes memory sig)
+        internal
+        pure
+        returns (address)
+    {
+        (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig);
+        return ecrecover(message, v, r, s);
+    }
+
+    function splitSignature(bytes memory sig)
+        internal
+        pure
+        returns (uint8 v, bytes32 r, bytes32 s)
+    {
+        require(sig.length == 65);
+        assembly {
+            // first 32 bytes, after the length prefix
+            r := mload(add(sig, 32))
+            // second 32 bytes
+            s := mload(add(sig, 64))
+            // final byte (first byte of the next 32 bytes)
+            v := byte(0, mload(add(sig, 96)))
+        }
+        return (v, r, s);
     }
 }
