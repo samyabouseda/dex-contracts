@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "./Approvable.sol";
 
 contract DEX {
+    address private _matchingEngine;
 
     event Deposit(address indexed depositor, address holder, address token, uint256 amount, uint rate);
     event TradeExecuted(
@@ -39,6 +40,10 @@ contract DEX {
     }
 
     mapping (address => Account) accounts;
+
+    constructor (address matchingEngine) public {
+        _matchingEngine = matchingEngine;
+    }
 
     /**
      * @dev Returns the amount of tokens owned by `_address`expressed in USDX.
@@ -108,7 +113,7 @@ contract DEX {
         bytes memory signature
     ) public {
         Trade memory trade = Trade(tokenMaker, tokenTaker, amountMaker, amountTaker, addressMaker, addressTaker, nonce);
-//        require(msg.sender == _matchingEngine, "Sender: should be matching engine");
+        require(msg.sender == _matchingEngine, "DEX: Sender should be matching engine");
 //        require(isValidSignature(trade, signature), "Trade: signature is invalid.");
 
         // Token exchange

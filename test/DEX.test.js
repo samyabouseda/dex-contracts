@@ -200,9 +200,9 @@ contract('DEX', accounts => {
 		const addressTaker = taker
 
 		// Execute trade on DEX smart contract.
-		const matchingEngine = accounts[0]
+		const matchingEngine = accounts[9]
 		const matchingEnginePrivateKey =
-			'315c85b8c573de2b829c331d816f2343a8b6bead70ca572044b929360b7f267a'
+			'451aa3a496e0d2fab9564f65ce2310885b88b11c5cc0cc487195b0964f1e5eb1'
 		const nonce = await getNonceOf(matchingEngine)
 		const matchingMessage = abi.soliditySHA3(
 			[

@@ -43,7 +43,7 @@ const _beforeEach = async accounts => {
 	)
 
 	// DEX config //
-	this.dex = await DEX.new()
+	this.dex = await DEX.new(accounts[9]) // 9th account is matching engine
 
 	return {
 		fiat: this.fiat,
