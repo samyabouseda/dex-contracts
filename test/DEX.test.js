@@ -134,7 +134,7 @@ contract('DEX', accounts => {
 			'7d4062be49dc548140f2ac7f6fe1921493123a48e7728b9171f35db0c30e5c84'
 		// USDX purchase
 		await this.contracts.fiatCrowdsale.sendTransaction({
-			value: 100,
+			value: 1000,
 			from: maker,
 		})
 		// Stock purchase
@@ -143,8 +143,11 @@ contract('DEX', accounts => {
 		await stockIco.buy(numberOfShares, rate, {
 			from: maker,
 		})
-		// USDX deposit
-		await dex.deposit(fiat.address, 100, 1, {
+		// Deposits
+		await dex.deposit(fiat.address, 1000, 1, {
+			from: maker,
+		})
+		await dex.deposit(stock.address, 1, rate, {
 			from: maker,
 		})
 
@@ -153,23 +156,41 @@ contract('DEX', accounts => {
 		const takerPrivateKey =
 			'e2a713f62e0e2e034b14771779d9fad0035318cb22f5fed28be96709ace00ebf'
 		await this.contracts.fiatCrowdsale.sendTransaction({
-			value: 100,
+			value: 1000,
 			from: taker,
 		})
 		// USDX deposit
-		await dex.deposit(fiat.address, 100, 1, {
+		await dex.deposit(fiat.address, 1000, 1, {
 			from: taker,
 		})
 		// placeTakerOrder
 
-		const makerBalanceOnDex = (
+		const makerStartingBalanceOnDex = (
 			await dex.balanceOf(maker)
 		).toNumber()
-		const takerBalanceOnDex = (
-			await dex.balanceOf(maker)
+		const takerStartingBalanceOnDex = (
+			await dex.balanceOf(taker)
 		).toNumber()
-		expect(makerBalanceOnDex).to.equal(100)
-		expect(takerBalanceOnDex).to.equal(100)
+		const makerStartingUSDXBalanceOnDex = (
+			await dex.tokenBalanceOf(maker, fiat.address)
+		).toNumber()
+		const makerStartingStockBalanceOnDex = (
+			await dex.tokenBalanceOf(maker, stock.address)
+		).toNumber()
+		const takerStartingUSDXBalanceOnDex = (
+			await dex.tokenBalanceOf(taker, fiat.address)
+		).toNumber()
+		const takerStartingStockBalanceOnDex = (
+			await dex.tokenBalanceOf(taker, stock.address)
+		).toNumber()
+
+		expect(makerStartingBalanceOnDex).to.equal(1248)
+		expect(makerStartingUSDXBalanceOnDex).to.equal(1000)
+		expect(makerStartingStockBalanceOnDex).to.equal(1)
+
+		expect(takerStartingBalanceOnDex).to.equal(1000)
+		expect(takerStartingUSDXBalanceOnDex).to.equal(1000)
+		expect(takerStartingStockBalanceOnDex).to.equal(0)
 
 		const tokenMaker = stock.address
 		const tokenTaker = fiat.address
@@ -178,61 +199,9 @@ contract('DEX', accounts => {
 		const addressMaker = maker
 		const addressTaker = taker
 
-		// // placeMakerOrder
-		// // Build message.
-		// const nonceMaker = await getNonceOf(maker)
-		// let messageMaker = abi.soliditySHA3(
-		// 	[
-		// 		'address',
-		// 		'address',
-		// 		'uint256',
-		// 		'uint256',
-		// 		'address',
-		// 		'uint256',
-		// 	],
-		// 	[
-		// 		tokenMaker,
-		// 		tokenTaker,
-		// 		amountMaker,
-		// 		amountTaker,
-		// 		addressTaker,
-		// 		nonceMaker,
-		// 	],
-		// )
-		// const makerSignedMessageObject = await signMessage(
-		// 	messageMaker,
-		// 	makerPrivateKey,
-		// )
-		//
-		// // placeTakerOrder
-		// // Build message.
-		// const nonceTaker = await getNonceOf(taker)
-		// let messageTaker = abi.soliditySHA3(
-		// 	[
-		// 		'address',
-		// 		'address',
-		// 		'uint256',
-		// 		'uint256',
-		// 		'address',
-		// 		'uint256',
-		// 	],
-		// 	[
-		// 		tokenMaker,
-		// 		tokenTaker,
-		// 		amountMaker,
-		// 		amountTaker,
-		// 		addressMaker,
-		// 		nonceTaker,
-		// 	],
-		// )
-		// const takerSignedMessageObject = await signMessage(
-		// 	messageTaker,
-		// 	takerPrivateKey,
-		// )
-
 		// Execute trade on DEX smart contract.
 		const matchingEngine = accounts[0]
-		matchingEnginePrivateKey =
+		const matchingEnginePrivateKey =
 			'315c85b8c573de2b829c331d816f2343a8b6bead70ca572044b929360b7f267a'
 		const nonce = await getNonceOf(matchingEngine)
 		const matchingMessage = abi.soliditySHA3(
@@ -274,7 +243,32 @@ contract('DEX', accounts => {
 			},
 		)
 
-		expect(false).to.equal(true)
+		const makerEndingBalanceOnDex = (
+			await dex.balanceOf(maker)
+		).toNumber()
+		const makerEndingUSDXBalanceOnDex = (
+			await dex.tokenBalanceOf(maker, fiat.address)
+		).toNumber()
+		const makerEndingStockBalanceOnDex = (
+			await dex.tokenBalanceOf(maker, stock.address)
+		).toNumber()
+		const takerEndingBalanceOnDex = (
+			await dex.balanceOf(taker)
+		).toNumber()
+		const takerEndingUSDXBalanceOnDex = (
+			await dex.tokenBalanceOf(taker, fiat.address)
+		).toNumber()
+		const takerEndingStockBalanceOnDex = (
+			await dex.tokenBalanceOf(taker, stock.address)
+		).toNumber()
+
+		expect(makerEndingBalanceOnDex).to.equal(1248)
+		expect(makerEndingUSDXBalanceOnDex).to.equal(1248)
+		expect(makerEndingStockBalanceOnDex).to.equal(0)
+
+		expect(takerEndingBalanceOnDex).to.equal(1000)
+		expect(takerEndingUSDXBalanceOnDex).to.equal(752)
+		expect(takerEndingStockBalanceOnDex).to.equal(1)
 	})
 
 	const getNonceOf = async account => {
@@ -296,3 +290,55 @@ contract('DEX', accounts => {
 	// 	expect(false).to.equal(true)
 	// })
 })
+
+// const orderSigning = () => {// // placeMakerOrder
+// // Build message.
+// const nonceMaker = await getNonceOf(maker)
+// let messageMaker = abi.soliditySHA3(
+// 	[
+// 		'address',
+// 		'address',
+// 		'uint256',
+// 		'uint256',
+// 		'address',
+// 		'uint256',
+// 	],
+// 	[
+// 		tokenMaker,
+// 		tokenTaker,
+// 		amountMaker,
+// 		amountTaker,
+// 		addressTaker,
+// 		nonceMaker,
+// 	],
+// )
+// const makerSignedMessageObject = await signMessage(
+// 	messageMaker,
+// 	makerPrivateKey,
+// )
+//
+// // placeTakerOrder
+// // Build message.
+// const nonceTaker = await getNonceOf(taker)
+// let messageTaker = abi.soliditySHA3(
+// 	[
+// 		'address',
+// 		'address',
+// 		'uint256',
+// 		'uint256',
+// 		'address',
+// 		'uint256',
+// 	],
+// 	[
+// 		tokenMaker,
+// 		tokenTaker,
+// 		amountMaker,
+// 		amountTaker,
+// 		addressMaker,
+// 		nonceTaker,
+// 	],
+// )
+// const takerSignedMessageObject = await signMessage(
+// 	messageTaker,
+// 	takerPrivateKey,
+// )}
